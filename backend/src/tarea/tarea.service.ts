@@ -1,26 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma.service'; 
 import { CreateTareaDto } from './dto/create-tarea.dto';
 import { UpdateTareaDto } from './dto/update-tarea.dto';
 
 @Injectable()
 export class TareaService {
-  create(createTareaDto: CreateTareaDto) {
-    return 'This action adds a new tarea';
+  constructor(private prisma: PrismaService) { }
+
+  //  Crear Tarea 
+  async create(createTareaDto: CreateTareaDto) {
+    return this.prisma.tarea.create({
+      data: {
+        titulo: createTareaDto.titulo,
+        descripcion: createTareaDto.descripcion,
+        prioridad: createTareaDto.prioridad || 'Media',
+        // Mapeo exacto a tu schema.prisma
+        fecha_limite: createTareaDto.fechaLimite ? new Date(createTareaDto.fechaLimite) : null,
+        columna_id: Number(createTareaDto.columnaId),
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all tarea`;
+  // Obtener todas las tareas
+  async findAll() {
+    return this.prisma.tarea.findMany({
+      include: { columna: true } // Para saber a qué columna pertenece
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tarea`;
+  // Obtener una sola
+  async findOne(id: number) {
+    const tarea = await this.prisma.tarea.findUnique({ where: { id } });
+    if (!tarea) throw new NotFoundException(`Tarea con ID ${id} no encontrada`);
+    return tarea;
   }
 
-  update(id: number, updateTareaDto: UpdateTareaDto) {
-    return `This action updates a #${id} tarea`;
+  // Actualizar 
+  async update(id: number, updateTareaDto: UpdateTareaDto) {
+    return this.prisma.tarea.update({
+      where: { id },
+      data: {
+        titulo: updateTareaDto.titulo,
+        descripcion: updateTareaDto.descripcion,
+        prioridad: updateTareaDto.prioridad,
+        // Si se cambia de columna, actualizamos el ID
+        ...(updateTareaDto.columnaId && { columna_id: Number(updateTareaDto.columnaId) }),
+      },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tarea`;
+  // Eliminar
+  async remove(id: number) {
+    return this.prisma.tarea.delete({ where: { id } });
   }
 }

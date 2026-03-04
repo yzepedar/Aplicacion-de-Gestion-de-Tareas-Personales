@@ -15,5 +15,5 @@ export class CreateClienteDto {
     @IsString()
     @IsNotEmpty()
     @MinLength(6)
-    contrase_a: string; // Fíjate que se llama igual que en tu modelo
+    contrase_a: string; 
 }

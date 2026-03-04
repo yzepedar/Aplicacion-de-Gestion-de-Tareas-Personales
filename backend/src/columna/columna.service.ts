@@ -1,26 +1,47 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
 import { CreateColumnaDto } from './dto/create-columna.dto';
 import { UpdateColumnaDto } from './dto/update-columna.dto';
 
 @Injectable()
 export class ColumnaService {
-  create(createColumnaDto: CreateColumnaDto) {
-    return 'This action adds a new columna';
+  constructor(private prisma: PrismaService) { }
+
+  async create(createColumnaDto: CreateColumnaDto) {
+    return await this.prisma.columna.create({
+      data: {
+        nombre: createColumnaDto.nombre,
+        orden: createColumnaDto.orden, 
+        tablero: {
+          connect: { id: createColumnaDto.tablero_id }
+        }
+      }
+    });
   }
 
-  findAll() {
-    return `This action returns all columna`;
+  async findAll() {
+    return await this.prisma.columna.findMany({
+      include: { tablero: true }
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} columna`;
+  async findOne(id: number) {
+    return await this.prisma.columna.findUnique({
+      where: { id },
+      include: { tablero: true }
+    });
   }
 
-  update(id: number, updateColumnaDto: UpdateColumnaDto) {
-    return `This action updates a #${id} columna`;
+  async update(id: number, updateColumnaDto: UpdateColumnaDto) {
+    return await this.prisma.columna.update({
+      where: { id },
+      data: updateColumnaDto as any
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} columna`;
+  async remove(id: number) {
+    return await this.prisma.columna.delete({
+      where: { id }
+    });
   }
 }
