@@ -17,8 +17,6 @@ export class ClienteService {
     return await this.prisma.cliente.findMany();
   }
 
-  // --- ESTOS SON LOS QUE TE FALTAN Y CAUSAN EL ERROR ---
-
   async findOne(id: number) {
     return await this.prisma.cliente.findUnique({
       where: { id },
