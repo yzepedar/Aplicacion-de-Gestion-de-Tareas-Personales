@@ -17,6 +17,8 @@ function App() {
 
   // US-06: Estado para el filtrado
   const [filtro, setFiltro] = useState<'Todas' | 'Pendiente' | 'Completada'>('Todas');
+  // Estado para el término de búsqueda
+  const [busqueda, setBusqueda] = useState('');
 
   const [nuevaTarea, setNuevaTarea] = useState({
     titulo: '',
@@ -142,10 +144,29 @@ function App() {
       <main className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-          <div>
-            <h2 className="text-xl font-black text-slate-800 tracking-tight">Dashboard</h2>
-            <p className="text-[11px] text-slate-400 font-medium">Gestiona tus tareas arrastrándolas</p>
+          <div className="flex items-center gap-8 flex-1">
+            <div>
+              <h2 className="text-xl font-black text-slate-800 tracking-tight">Dashboard</h2>
+              <p className="text-[11px] text-slate-400 font-medium">Gestiona tus tareas arrastrándolas</p>
+            </div>
+
+            {/* BARRA DE BÚSQUEDA */}
+            <div className="relative w-full max-w-md hidden md:block">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                placeholder="Buscar por descripción..."
+                className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+            </div>
           </div>
+
           <button onClick={() => setShowModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg active:scale-95 transition-all">
             + Nueva Tarea
           </button>
@@ -168,22 +189,16 @@ function App() {
           ))}
         </div>
 
-        {/* Barra de Filtros */}
+        {/* Filtros (US-06) */}
         <div className="px-8 mt-6 flex gap-2 shrink-0">
-          {[
-            { id: 'Todas', label: 'Ver Todas' },
-            { id: 'Pendiente', label: 'Pendientes' },
-            { id: 'Completada', label: 'Completadas' }
-          ].map((opcion) => (
+          {['Todas', 'Pendiente', 'Completada'].map((op) => (
             <button
-              key={opcion.id}
-              onClick={() => setFiltro(opcion.id as any)}
-              className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all ${filtro === opcion.id
-                ? 'bg-slate-800 text-white shadow-lg'
-                : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-50'
+              key={op}
+              onClick={() => setFiltro(op as any)}
+              className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all ${filtro === op ? 'bg-slate-800 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-200'
                 }`}
             >
-              {opcion.label}
+              {op}
             </button>
           ))}
         </div>
@@ -199,57 +214,69 @@ function App() {
                   if (filtro === 'Completada') return col.nombre.toUpperCase().includes('DONE');
                   return true;
                 })
-                .map((col: any) => (
-                  <div key={col.id} className="bg-slate-100/40 rounded-[2rem] flex flex-col min-h-[500px] border border-slate-200/50">
-                    <div className="flex justify-between items-center p-5">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${col.nombre.toUpperCase().includes('DONE') ? 'bg-green-500' : 'bg-blue-500'}`}></div>
-                        <h3 className="font-black text-slate-600 text-[10px] uppercase tracking-tighter">{col.nombre}</h3>
-                      </div>
-                      <span className="bg-white text-[10px] font-bold text-slate-400 px-2 py-0.5 rounded-lg shadow-sm">{col.tarea?.length || 0}</span>
-                    </div>
+                .map((col: any) => {
+                  // Filtrar tareas por descripción (US-07)
+                  const tareasFiltradas = col.tarea?.filter((t: any) =>
+                    t.descripcion?.toLowerCase().includes(busqueda.toLowerCase())
+                  );
 
-                    <Droppable droppableId={col.id.toString()}>
-                      {(provided) => (
-                        <div {...provided.droppableProps} ref={provided.innerRef} className="flex-1 px-4 pb-4 space-y-3">
-                          {col.tarea?.map((t: any, index: number) => (
-                            <Draggable key={t.id.toString()} draggableId={t.id.toString()} index={index}>
-                              {(provided) => (
-                                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="bg-white p-5 rounded-[1.8rem] shadow-sm border border-slate-200/60 transition-all group hover:shadow-md">
-                                  <div className="flex justify-between items-start mb-1">
-                                    <h4 className="font-bold text-slate-800 text-sm leading-tight flex-1">{t.titulo}</h4>
-                                    <div className="flex gap-1 ml-2">
-                                      {/* Botón Check */}
-                                      <button onClick={() => toggleCompletada(t)} className={`p-1 rounded-md transition-all ${col.nombre.toUpperCase().includes('DONE') ? 'text-green-500 bg-green-50 opacity-100' : 'opacity-0 group-hover:opacity-100 text-slate-400 hover:text-green-500 hover:bg-green-50'}`}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                                      </button>
-                                      {/* Botón Editar */}
-                                      <button onClick={() => abrirEditar(t)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-blue-50 text-slate-400 hover:text-blue-500 rounded-md transition-all">✏️</button>
-                                      {/* Botón Eliminar */}
-                                      <button onClick={() => handleEliminar(t.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-all">🗑️</button>
-                                    </div>
-                                  </div>
-                                  <p className="text-slate-400 text-[11px] mb-4 line-clamp-1">{t.descripcion}</p>
-                                  <div className="flex justify-between items-center pt-3 border-t border-slate-50">
-                                    <span className="text-[10px] text-slate-400 font-bold">🗓️ {t.fecha_limite ? new Date(t.fecha_limite).toLocaleDateString() : 'S/F'}</span>
-                                    <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase ${t.prioridad === 'Alta' ? 'bg-red-50 text-red-500' : t.prioridad === 'Baja' ? 'bg-green-50 text-green-500' : 'bg-orange-50 text-orange-500'}`}>
-                                      {t.prioridad || 'Media'}
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
+                  return (
+                    <div key={col.id} className="bg-slate-100/40 rounded-[2rem] flex flex-col min-h-[500px] border border-slate-200/50">
+                      <div className="flex justify-between items-center p-5">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${col.nombre.toUpperCase().includes('DONE') ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                          <h3 className="font-black text-slate-600 text-[10px] uppercase tracking-tighter">{col.nombre}</h3>
                         </div>
-                      )}
-                    </Droppable>
-                  </div>
-                ))}
+                        <span className="bg-white text-[10px] font-bold text-slate-400 px-2 py-0.5 rounded-lg shadow-sm">{tareasFiltradas?.length || 0}</span>
+                      </div>
+
+                      <Droppable droppableId={col.id.toString()}>
+                        {(provided) => (
+                          <div {...provided.droppableProps} ref={provided.innerRef} className="flex-1 px-4 pb-4 space-y-3">
+                            {tareasFiltradas && tareasFiltradas.length > 0 ? (
+                              tareasFiltradas.map((t: any, index: number) => (
+                                <Draggable key={t.id.toString()} draggableId={t.id.toString()} index={index}>
+                                  {(provided) => (
+                                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="bg-white p-5 rounded-[1.8rem] shadow-sm border border-slate-200/60 transition-all group hover:shadow-md">
+                                      <div className="flex justify-between items-start mb-1">
+                                        <h4 className="font-bold text-slate-800 text-sm leading-tight flex-1">{t.titulo}</h4>
+                                        <div className="flex gap-1 ml-2">
+                                          <button onClick={() => toggleCompletada(t)} className={`p-1 rounded-md transition-all ${col.nombre.toUpperCase().includes('DONE') ? 'text-green-500 bg-green-50 opacity-100' : 'opacity-0 group-hover:opacity-100 text-slate-400 hover:text-green-500 hover:bg-green-50'}`}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                          </button>
+                                          <button onClick={() => abrirEditar(t)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-blue-50 text-slate-400 hover:text-blue-500 rounded-md transition-all">✏️</button>
+                                          <button onClick={() => handleEliminar(t.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-all">🗑️</button>
+                                        </div>
+                                      </div>
+                                      <p className="text-slate-400 text-[11px] mb-4 line-clamp-1">{t.descripcion}</p>
+                                      <div className="flex justify-between items-center pt-3 border-t border-slate-50">
+                                        <span className="text-[10px] text-slate-400 font-bold">🗓️ {t.fecha_limite ? new Date(t.fecha_limite).toLocaleDateString() : 'S/F'}</span>
+                                        <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase ${t.prioridad === 'Alta' ? 'bg-red-50 text-red-500' : t.prioridad === 'Baja' ? 'bg-green-50 text-green-500' : 'bg-orange-50 text-orange-500'}`}>
+                                          {t.prioridad || 'Media'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))
+                            ) : (
+                              // 3) Mensaje si no hay resultados (US-07)
+                              <div className="text-center py-10">
+                                <p className="text-slate-400 text-[10px] font-medium uppercase italic">Sin resultados</p>
+                              </div>
+                            )}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
+                  );
+                })}
             </div>
           </DragDropContext>
         </div>
       </main>
+
 
       {/* Modal */}
       {showModal && (
