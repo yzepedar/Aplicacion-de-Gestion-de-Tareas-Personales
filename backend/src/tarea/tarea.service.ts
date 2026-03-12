@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service'; 
+import { PrismaService } from '../prisma.service'; // Ruta corregida según tu estructura
 import { CreateTareaDto } from './dto/create-tarea.dto';
 import { UpdateTareaDto } from './dto/update-tarea.dto';
 
@@ -7,7 +7,7 @@ import { UpdateTareaDto } from './dto/update-tarea.dto';
 export class TareaService {
   constructor(private prisma: PrismaService) { }
 
-  //  Crear Tarea 
+  // 1. Crear Tarea (US-01)
   async create(createTareaDto: CreateTareaDto) {
     return this.prisma.tarea.create({
       data: {
@@ -21,21 +21,21 @@ export class TareaService {
     });
   }
 
-  // Obtener todas las tareas
+  // 2. Obtener todas (US-02)
   async findAll() {
     return this.prisma.tarea.findMany({
       include: { columna: true } // Para saber a qué columna pertenece
     });
   }
 
-  // Obtener una sola
+  // 3. Obtener una sola
   async findOne(id: number) {
     const tarea = await this.prisma.tarea.findUnique({ where: { id } });
     if (!tarea) throw new NotFoundException(`Tarea con ID ${id} no encontrada`);
     return tarea;
   }
 
-  // Actualizar 
+  // 4. ACTUALIZAR (Este es el que te daba el error de compilación)
   async update(id: number, updateTareaDto: UpdateTareaDto) {
     return this.prisma.tarea.update({
       where: { id },
@@ -49,7 +49,7 @@ export class TareaService {
     });
   }
 
-  // Eliminar
+  // 5. Eliminar (US-04)
   async remove(id: number) {
     return this.prisma.tarea.delete({ where: { id } });
   }

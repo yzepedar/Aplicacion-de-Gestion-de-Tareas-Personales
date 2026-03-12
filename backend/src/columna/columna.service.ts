@@ -5,13 +5,13 @@ import { UpdateColumnaDto } from './dto/update-columna.dto';
 
 @Injectable()
 export class ColumnaService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createColumnaDto: CreateColumnaDto) {
     return await this.prisma.columna.create({
       data: {
         nombre: createColumnaDto.nombre,
-        orden: createColumnaDto.orden, 
+        orden: createColumnaDto.orden, // <--- Ahora Prisma estará feliz
         tablero: {
           connect: { id: createColumnaDto.tablero_id }
         }
@@ -24,6 +24,8 @@ export class ColumnaService {
       include: { tablero: true }
     });
   }
+
+  // --- AGREGA ESTOS MÉTODOS PARA QUITAR LOS ERRORES ---
 
   async findOne(id: number) {
     return await this.prisma.columna.findUnique({
