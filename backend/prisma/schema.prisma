@@ -20,7 +20,7 @@ model columna {
   nombre     String  @db.VarChar(50)
   orden      Int
   tablero_id Int
-  tablero    tablero @relation(fields: [tablero_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tablero    tablero @relation(fields: [tablero_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_columna_tablero")
   tarea      tarea[]
 }
 
@@ -29,7 +29,7 @@ model tablero {
   nombre     String    @db.VarChar(100)
   cliente_id Int
   columna    columna[]
-  cliente    cliente   @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  cliente    cliente   @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tablero_cliente")
 }
 
 model tarea {
@@ -40,5 +40,5 @@ model tarea {
   fecha_limite   DateTime? @db.Date
   fecha_creacion DateTime? @default(now()) @db.Timestamp(6)
   columna_id     Int
-  columna        columna   @relation(fields: [columna_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  columna        columna   @relation(fields: [columna_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tarea_columna")
 }
