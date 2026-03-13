@@ -7,6 +7,7 @@ import {
   eliminarTarea,
   actualizarTarea
 } from './api/tableroApi';
+import Swal from 'sweetalert2';
 
 // 1. Definimos el estado inicial 
 const ESTADO_INICIAL_TAREA = {
@@ -112,8 +113,24 @@ function App() {
 
       if (editandoId) {
         await actualizarTarea(editandoId, tareaParaAPI);
+        // ALERTA DE ACTUALIZACIÓN
+        Swal.fire({
+          title: '¡Actualizado!',
+          text: 'La tarea se ha modificado correctamente.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         await crearTarea(tareaParaAPI);
+        // ALERTA DE CREACIÓN
+        Swal.fire({
+          title: '¡Creado!',
+          text: 'Nueva tarea añadida al tablero.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
 
       cerrarModal();
@@ -125,16 +142,30 @@ function App() {
     }
   };
 
+  // US-04: ELIMINAR TAREA CON CONFIRMACIÓN
   const handleEliminar = async (id: number) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
-      try {
-        await eliminarTarea(id);
-        await cargarDatos();
-      } catch (err) {
-        alert("Error al eliminar.");
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "No podrás revertir esta acción",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await eliminarTarea(id);
+          await cargarDatos();
+          Swal.fire('¡Eliminado!', 'La tarea ha sido borrada.', 'success');
+        } catch (err) {
+          Swal.fire('Error', 'No se pudo eliminar.', 'error');
+        }
       }
-    }
+    });
   };
+
 
   // --- MANEJO DE MODAL ---
   const abrirEditar = (t: any) => {
