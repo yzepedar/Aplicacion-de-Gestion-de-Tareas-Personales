@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model cliente {
+  id         Int       @id @default(autoincrement())
+  nombre     String    @db.VarChar(100)
+  email      String    @unique @db.VarChar(100)
+  contrase_a String    @map("contraseña") @db.VarChar(255)
+  tablero    tablero[]
+}
+
+model columna {
+  id         Int     @id @default(autoincrement())
+  nombre     String  @db.VarChar(50)
+  orden      Int
+  tablero_id Int
+  tablero    tablero @relation(fields: [tablero_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tarea      tarea[]
+}
+
+model tablero {
+  id         Int       @id @default(autoincrement())
+  nombre     String    @db.VarChar(100)
+  cliente_id Int
+  columna    columna[]
+  cliente    cliente   @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model tarea {
+  id             Int       @id @default(autoincrement())
+  titulo         String    @db.VarChar(150)
+  descripcion    String?
+  prioridad      String?   @db.VarChar(50)
+  fecha_limite   DateTime? @db.Date
+  fecha_creacion DateTime? @default(now()) @db.Timestamp(6)
+  columna_id     Int
+  columna        columna   @relation(fields: [columna_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}

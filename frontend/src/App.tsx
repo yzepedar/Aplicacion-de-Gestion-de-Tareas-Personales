@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'; // Nueva librería
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { actualizarEstadoTarea, crearTarea, getTableroData } from './api/tableroApi';
 
 function App() {
@@ -53,7 +53,6 @@ function App() {
       console.log(`✅ Tarea ${tareaId} movida con éxito a columna ${nuevaColumnaId}`);
     } catch (err) {
       alert("No se pudo mover la tarea. Intenta de nuevo.");
-      // Si falla, podrías recargar los datos para devolver la tarjeta a su sitio
       await cargarDatos();
     }
   };
@@ -82,7 +81,7 @@ function App() {
 
   return (
     <div className="flex h-screen bg-[#f4f7fe] overflow-hidden font-sans">
-      {/* Sidebar Compacto */}
+      {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-slate-200 p-6 hidden lg:flex flex-col">
         <div className="flex items-center gap-3 mb-10 px-2">
           <div className="bg-blue-600 p-2 rounded-lg text-white font-bold shadow-lg shadow-blue-200">TB</div>
@@ -105,7 +104,7 @@ function App() {
           </button>
         </header>
 
-        {/* 📊 SECCIÓN DE ESTADÍSTICAS REFORMADA (Más pequeña y elegante) */}
+        {/* SECCIÓN DE ESTADÍSTICAS */}
         <div className="px-8 pt-6 grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
           {[
             { label: 'Total', count: tablero?.columna?.reduce((acc: number, col: any) => acc + (col.tarea?.length || 0), 0) || 0, icon: '📝', color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -124,7 +123,7 @@ function App() {
           ))}
         </div>
 
-        {/* ÁREA KANBAN: Con scroll independiente para no romper el layout */}
+        {/* ÁREA KANBAN */}
         <div className="flex-1 overflow-y-auto p-8">
           <DragDropContext onDragEnd={onDragEnd}>
             {/* Cambiamos de 'flex' a 'grid' con 3 columnas iguales */}
@@ -188,7 +187,7 @@ function App() {
         </div>
       </main>
 
-      {/* Modal Corregido: Prioridad dentro del modal */}
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl">
@@ -198,7 +197,7 @@ function App() {
               <textarea placeholder="Descripción" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl h-28 outline-none resize-none font-semibold" value={nuevaTarea.descripcion} onChange={(e) => setNuevaTarea({ ...nuevaTarea, descripcion: e.target.value })} />
               <input type="date" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-semibold" value={nuevaTarea.fechaLimite} onChange={(e) => setNuevaTarea({ ...nuevaTarea, fechaLimite: e.target.value })} />
 
-              {/* SELECTOR DE PRIORIDAD: Ahora está dentro del modal */}
+              {/* SELECTOR DE PRIORIDAD */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Prioridad</label>
                 <select className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-semibold cursor-pointer" value={nuevaTarea.prioridad} onChange={(e) => setNuevaTarea({ ...nuevaTarea, prioridad: e.target.value })}>
