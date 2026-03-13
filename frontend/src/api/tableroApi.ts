@@ -55,3 +55,13 @@ export const actualizarTarea = async (id: number, datos: any) => {
   const { data } = await api.patch(`/tarea/${id}`, datos);
   return data;
 };
+
+export const eliminarTarea = async (tareaId: number) => {
+    try {
+        const { data } = await api.delete(`/tarea/${tareaId}`);
+        return data;
+    } catch (error) {
+        console.error("Error al eliminar la tarea:", error);
+        throw error;
+    }
+};

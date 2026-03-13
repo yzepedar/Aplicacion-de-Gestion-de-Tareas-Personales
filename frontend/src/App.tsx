@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { actualizarEstadoTarea, crearTarea, getTableroData, actualizarTarea } from './api/tableroApi';
+import { actualizarEstadoTarea, crearTarea, getTableroData, eliminarTarea, actualizarTarea } from './api/tableroApi';
 
 function App() {
   const [tablero, setTablero] = useState<any>(null);
@@ -66,6 +66,17 @@ function App() {
     }
   };
 
+  const handleEliminar = async (id: number) => {
+    if (window.confirm("¿Confirmas la eliminación de esta tarea?")) {
+      try {
+        await eliminarTarea(id);
+        await cargarDatos();
+      } catch (err) {
+        alert("Error al eliminar.");
+      }
+    }
+  };
+
   const abrirEditar = (t: any) => {
     setEditandoId(t.id);
     setNuevaTarea({
@@ -110,7 +121,7 @@ function App() {
           </button>
         </header>
 
-        {/*  Estadísticas */}
+        {/* Estadísticas */}
         <div className="px-8 pt-6 grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
           {[
             { label: 'Total', count: tablero?.columna?.reduce((acc: number, col: any) => acc + (col.tarea?.length || 0), 0) || 0, icon: '📝', color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -152,6 +163,7 @@ function App() {
                                   <h4 className="font-bold text-slate-800 text-sm leading-tight flex-1">{t.titulo}</h4>
                                   <div className="flex gap-1 ml-2">
                                     <button onClick={() => abrirEditar(t)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-blue-50 text-slate-400 hover:text-blue-500 rounded-md transition-all">✏️</button>
+                                    <button onClick={() => handleEliminar(t.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-all">🗑️</button>
                                   </div>
                                 </div>
                                 <p className="text-slate-400 text-[11px] mb-4 line-clamp-1">{t.descripcion}</p>
