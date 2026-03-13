@@ -168,25 +168,30 @@ function App() {
           ))}
         </div>
 
-        {/* Barra de Filtros */}
-        <div className="px-8 mt-6 flex gap-2 shrink-0">
-          {[
-            { id: 'Todas', label: 'Ver Todas' },
-            { id: 'Pendiente', label: 'Pendientes' },
-            { id: 'Completada', label: 'Completadas' }
-          ].map((opcion) => (
-            <button
-              key={opcion.id}
-              onClick={() => setFiltro(opcion.id as any)}
-              className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all ${filtro === opcion.id
-                ? 'bg-slate-800 text-white shadow-lg'
-                : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-50'
-                }`}
-            >
-              {opcion.label}
-            </button>
-          ))}
-        </div>
+       {/* Barra de Filtros */}
+<div className="px-8 mt-6 flex gap-2 shrink-0">
+  {[
+    { id: 'Todas', label: 'Ver Todas' },
+    { id: 'Pendiente', label: 'Pendientes' },
+    { id: 'Completada', label: 'Completadas' }
+  ].map((opcion) => (
+    <button
+      key={opcion.id}
+      onClick={() => setFiltro(opcion.id as any)}
+      className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all ${
+        filtro === opcion.id
+          ? opcion.id === 'Todas'
+            ? 'bg-slate-500 text-white shadow-lg'
+            : opcion.id === 'Pendiente'
+            ? 'bg-orange-500 text-white shadow-lg'
+            : 'bg-green-500 text-white shadow-lg'
+          : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-50'
+      }`}
+    >
+      {opcion.label}
+    </button>
+  ))}
+</div>
 
         {/* KANBAN */}
         <div className="flex-1 overflow-y-auto p-8">
