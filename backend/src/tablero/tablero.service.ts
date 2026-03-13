@@ -25,17 +25,19 @@ export class TableroService {
   }
 
   async findOne(id: number) {
-  const tablero = await this.prisma.tablero.findUnique({
-    where: { id },
-    include: {
-      columna: {
-        orderBy: { orden: 'asc' },
-        include: {
-          tarea: true,
+    const tablero = await this.prisma.tablero.findUnique({
+      where: { id },
+      include: {
+        columna: {
+          orderBy: { orden: 'asc' }, // Ordenamos las columnas según su campo 'orden'
+          include: {
+            tarea: {
+              orderBy: { fecha_limite: 'asc' }, // Ordena las tareas por fecha 
+            },
+          },
         },
       },
-    },
-  });
+    });
 
   if (!tablero) return null;
 
@@ -45,7 +47,6 @@ export class TableroService {
 
   tablero.columna.forEach(col => {
     totalTareas += col.tarea.length;
-    // Si la columna se llama "Done" o es la última (puedes ajustar esta condición)
     if (col.nombre.toLowerCase() === 'done' || col.nombre.toLowerCase() === 'finalizado') {
       tareasCompletadas += col.tarea.length;
     }

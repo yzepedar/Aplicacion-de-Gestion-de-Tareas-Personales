@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service'; // Ruta corregida según tu estructura
+import { PrismaService } from '../prisma.service'; 
 import { CreateTareaDto } from './dto/create-tarea.dto';
 import { UpdateTareaDto } from './dto/update-tarea.dto';
 
@@ -14,7 +14,6 @@ export class TareaService {
         titulo: createTareaDto.titulo,
         descripcion: createTareaDto.descripcion,
         prioridad: createTareaDto.prioridad || 'Media',
-        // Mapeo exacto a tu schema.prisma
         fecha_limite: createTareaDto.fechaLimite ? new Date(createTareaDto.fechaLimite) : null,
         columna_id: Number(createTareaDto.columnaId),
       },
@@ -35,15 +34,17 @@ export class TareaService {
     return tarea;
   }
 
-  // 4. ACTUALIZAR (Este es el que te daba el error de compilación)
+  // 4. Actualizar (US-03)
   async update(id: number, updateTareaDto: UpdateTareaDto) {
     return this.prisma.tarea.update({
-      where: { id },
+      where: { id: Number(id) },
       data: {
         titulo: updateTareaDto.titulo,
         descripcion: updateTareaDto.descripcion,
         prioridad: updateTareaDto.prioridad,
-        // Si se cambia de columna, actualizamos el ID
+        fecha_limite: updateTareaDto.fechaLimite
+          ? new Date(`${updateTareaDto.fechaLimite}T12:00:00Z`)
+          : undefined,
         ...(updateTareaDto.columnaId && { columna_id: Number(updateTareaDto.columnaId) }),
       },
     });
@@ -54,3 +55,4 @@ export class TareaService {
     return this.prisma.tarea.delete({ where: { id } });
   }
 }
+

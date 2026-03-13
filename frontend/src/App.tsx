@@ -8,26 +8,25 @@ import {
   actualizarTarea
 } from './api/tableroApi';
 
+// 1. Definimos el estado inicial 
+const ESTADO_INICIAL_TAREA = {
+  titulo: '',
+  descripcion: '',
+  fechaLimite: '',
+  prioridad: 'Media'
+};
+
 function App() {
-  // --- ESTADOS ---
   const [tablero, setTablero] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editandoId, setEditandoId] = useState<number | null>(null);
-
-  // US-06: Estado para el filtrado
   const [filtro, setFiltro] = useState<'Todas' | 'Pendiente' | 'Completada'>('Todas');
-  // Estado para el término de búsqueda
   const [busqueda, setBusqueda] = useState('');
 
-  const [nuevaTarea, setNuevaTarea] = useState({
-    titulo: '',
-    descripcion: '',
-    fechaLimite: '',
-    prioridad: 'Media'
-  });
+  // Estado de la tarea
+  const [nuevaTarea, setNuevaTarea] = useState(ESTADO_INICIAL_TAREA);
 
-  // --- CARGA DE DATOS ---
   const cargarDatos = async () => {
     setLoading(true);
     try {
@@ -64,7 +63,7 @@ function App() {
     const colDone = tablero?.columna?.find((c: any) => c.nombre.toUpperCase().includes('DONE'));
 
     if (!colToDo || !colDone) return;
-    
+
     const destinoId = tarea.columnaId === colDone.id ? colToDo.id : colDone.id;
 
     try {
@@ -75,27 +74,57 @@ function App() {
     }
   };
 
-  // --- US-01 / US-03: GUARDAR (CREAR O EDITAR) ---
   const handleGuardar = async () => {
     if (!nuevaTarea.titulo || !nuevaTarea.descripcion || !nuevaTarea.fechaLimite) {
       alert("Todos los campos son obligatorios.");
       return;
     }
+
+    const fechaSeleccionada = new Date(nuevaTarea.fechaLimite + "T12:00:00");
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // Solo comparamos días, no horas
+
+    if (fechaSeleccionada < hoy) {
+      alert("La fecha límite no puede ser un día anterior a hoy.");
+      return;
+    }
+
     try {
+      const fechaLimpia = nuevaTarea.fechaLimite.split('T')[0];
+
+      let colIdFinal = 5;
       if (editandoId) {
-        await actualizarTarea(editandoId, nuevaTarea);
+        const todasLasTareas = (tablero?.columna || []).flatMap((c: any) => c.tarea || []);
+        const encontrada = todasLasTareas.find((tarea: any) => tarea.id === editandoId);
+        if (encontrada) colIdFinal = encontrada.columna_id;
       } else {
-        const firstColId = tablero?.columna?.[0]?.id || 5;
-        await crearTarea({ ...nuevaTarea, tableroId: 2, columnaId: firstColId });
+        colIdFinal = tablero?.columna?.[0]?.id || 5;
       }
+
+      const tareaParaAPI = {
+        titulo: nuevaTarea.titulo,
+        descripcion: nuevaTarea.descripcion,
+        prioridad: nuevaTarea.prioridad || 'Media',
+        fechaLimite: fechaLimpia,
+        columnaId: Number(colIdFinal),
+        tableroId: 2
+      };
+
+      if (editandoId) {
+        await actualizarTarea(editandoId, tareaParaAPI);
+      } else {
+        await crearTarea(tareaParaAPI);
+      }
+
       cerrarModal();
       await cargarDatos();
+
     } catch (err) {
-      alert("Error al guardar la tarea.");
+      console.error("Error:", err);
+      alert("No se pudo guardar la tarea.");
     }
   };
 
-  // --- US-04: ELIMINAR TAREA ---
   const handleEliminar = async (id: number) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
       try {
@@ -119,10 +148,16 @@ function App() {
     setShowModal(true);
   };
 
+  const abrirNuevo = () => {
+    setEditandoId(null);
+    setNuevaTarea(ESTADO_INICIAL_TAREA); 
+    setShowModal(true);
+  };
+
   const cerrarModal = () => {
     setShowModal(false);
     setEditandoId(null);
-    setNuevaTarea({ titulo: '', descripcion: '', fechaLimite: '', prioridad: 'Media' });
+    setNuevaTarea(ESTADO_INICIAL_TAREA); 
   };
 
   if (loading) return <div className="h-screen flex items-center justify-center font-bold text-blue-600">Cargando Tablero...</div>;
@@ -167,7 +202,7 @@ function App() {
             </div>
           </div>
 
-          <button onClick={() => setShowModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg active:scale-95 transition-all">
+          <button onClick={ abrirNuevo } className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg active:scale-95 transition-all">
             + Nueva Tarea
           </button>
         </header>
@@ -250,7 +285,7 @@ function App() {
                                       </div>
                                       <p className="text-slate-400 text-[11px] mb-4 line-clamp-1">{t.descripcion}</p>
                                       <div className="flex justify-between items-center pt-3 border-t border-slate-50">
-                                        <span className="text-[10px] text-slate-400 font-bold">🗓️ {t.fecha_limite ? new Date(t.fecha_limite).toLocaleDateString() : 'S/F'}</span>
+                                        <span className="text-[10px] text-slate-400 font-bold">🗓️ {t.fecha_limite ? t.fecha_limite.toString().split('T')[0] : 'Sin fecha' }</span>
                                         <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase ${t.prioridad === 'Alta' ? 'bg-red-50 text-red-500' : t.prioridad === 'Baja' ? 'bg-green-50 text-green-500' : 'bg-orange-50 text-orange-500'}`}>
                                           {t.prioridad || 'Media'}
                                         </span>
