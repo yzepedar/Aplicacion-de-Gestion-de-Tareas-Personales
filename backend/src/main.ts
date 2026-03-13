@@ -14,7 +14,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  // Escucha en todas las interfaces para evitar bloqueos locales
+  
   await app.listen(3000, '0.0.0.0');
   console.log(`🚀 Servidor listo en: http://localhost:3000/api`);
 }
