@@ -148,7 +148,6 @@ function App() {
           ))}
         </div>
 
-
             </div>
           </DragDropContext>
         </div>
