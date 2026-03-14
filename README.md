@@ -49,6 +49,27 @@ Base de datos
 
 
 # Instrucciones de Ejecución
+# --------- Para frontend ejecute desde la raiz en la terminal--------------
+* cd frontend
+
+* npm install
+
+* npm run dev
+
+# ---------- para backend ejecute desde la terminal -------------------
+* cd backend
+
+* nmp ci
+
+* Set-Content -Path .env -Value 'DATABASE_URL="postgresql://postgres:TU_PASSWORD@localhost:5432/gestion_tareas_db?schema=public"'
+
+* npx prisma generate
+
+* npx prisma db pull
+
+* npx prisma generate
+
+* npm start:dev
 
 Asegurece de tener instalado PostgreSQL, descarge el script, cree una base de datos llamada Gestion_de_TareaBD y ejecute el script dentro de ella.
 
