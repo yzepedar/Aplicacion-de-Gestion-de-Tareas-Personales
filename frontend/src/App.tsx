@@ -64,21 +64,29 @@ function App() {
   };
 
   // --- US-05: ALTERNAR ESTADO (CHECK) ---
-  const toggleCompletada = async (tarea: any) => {
-    const colToDo = tablero?.columna?.find((c: any) => c.nombre.toUpperCase().includes('TO DO'));
-    const colDone = tablero?.columna?.find((c: any) => c.nombre.toUpperCase().includes('DONE'));
+const toggleCompletada = async (tarea: any) => {
+  const colPendiente = tablero?.columna?.find((c: any) =>
+    c.nombre.toUpperCase().includes('IN PROGRESS')
+  );
 
-    if (!colToDo || !colDone) return;
+  const colCompletada = tablero?.columna?.find((c: any) =>
+    c.nombre.toUpperCase().includes('DONE')
+  );
 
-    const destinoId = tarea.columnaId === colDone.id ? colToDo.id : colDone.id;
+  if (!colPendiente || !colCompletada) return;
 
-    try {
-      await actualizarEstadoTarea(tarea.id, destinoId);
-      await cargarDatos(); // Reflejo inmediato
-    } catch (err) {
-      console.error("Error al alternar estado:", err);
-    }
-  };
+  const destinoId =
+    tarea.columna_id === colCompletada.id
+      ? colPendiente.id
+      : colCompletada.id;
+
+  try {
+    await actualizarEstadoTarea(tarea.id, destinoId);
+    await cargarDatos();
+  } catch (err) {
+    console.error('Error al alternar estado:', err);
+  }
+};
 
   const handleGuardar = async () => {
     if (!nuevaTarea.titulo || !nuevaTarea.descripcion || !nuevaTarea.fechaLimite) {
