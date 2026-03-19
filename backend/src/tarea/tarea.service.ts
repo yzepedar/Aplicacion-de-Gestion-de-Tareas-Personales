@@ -38,40 +38,20 @@ export class TareaService {
 
   // 4. Actualizar (US-03)
 async update(id: number, updateTareaDto: UpdateTareaDto) {
-  let estadoFinal = updateTareaDto.estado;
-
-  if (updateTareaDto.columnaId !== undefined) {
-    const columna = await this.prisma.columna.findUnique({
-      where: { id: Number(updateTareaDto.columnaId) },
-    });
-
-    if (!columna) {
-      throw new NotFoundException(`Columna con ID ${updateTareaDto.columnaId} no encontrada`);
-    }
-
-    estadoFinal = columna.nombre;
-  }
-
   return this.prisma.tarea.update({
     where: { id: Number(id) },
     data: {
-      ...(updateTareaDto.titulo !== undefined && {
-        titulo: updateTareaDto.titulo,
-      }),
-      ...(updateTareaDto.descripcion !== undefined && {
-        descripcion: updateTareaDto.descripcion,
-      }),
-      ...(updateTareaDto.prioridad !== undefined && {
-        prioridad: updateTareaDto.prioridad,
-      }),
-      ...(updateTareaDto.fechaLimite !== undefined && {
-        fecha_limite: new Date(`${updateTareaDto.fechaLimite}T12:00:00Z`),
-      }),
+      titulo: updateTareaDto.titulo,
+      descripcion: updateTareaDto.descripcion,
+      prioridad: updateTareaDto.prioridad,
+      fecha_limite: updateTareaDto.fechaLimite
+        ? new Date(updateTareaDto.fechaLimite)
+        : undefined,
       ...(updateTareaDto.columnaId !== undefined && {
         columna_id: Number(updateTareaDto.columnaId),
       }),
-      ...(estadoFinal !== undefined && {
-        estado: estadoFinal,
+      ...(updateTareaDto.estado !== undefined && {
+        estado: updateTareaDto.estado,
       }),
     },
   });

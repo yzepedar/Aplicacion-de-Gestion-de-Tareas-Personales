@@ -50,50 +50,71 @@ function App() {
   }, []);
 
   // --- LÓGICA DE ARRASTRE ---
-  const onDragEnd = async (result: any) => {
-    const { destination, source, draggableId } = result;
-    if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) return;
+const onDragEnd = async (result: any) => {
+  const { destination, source, draggableId } = result;
 
-    try {
-      await actualizarEstadoTarea(parseInt(draggableId), parseInt(destination.droppableId));
-      await cargarDatos();
-    } catch (err) {
-      alert("Error al mover la tarea.");
-      await cargarDatos();
-    }
-  };
-
-  // --- US-05: ALTERNAR ESTADO (CHECK) ---
-const toggleCompletada = async (tarea: any) => {
-  const colPendiente = tablero?.columna?.find((c: any) =>
-    c.nombre.toUpperCase().includes('IN PROGRESS')
-  );
-
-  const colCompletada = tablero?.columna?.find((c: any) =>
-    c.nombre.toUpperCase().includes('DONE')
-  );
-
-  if (!colPendiente || !colCompletada) return;
-
-  const destinoId =
-    tarea.columna_id === colCompletada.id
-      ? colPendiente.id
-      : colCompletada.id;
+  if (
+    !destination ||
+    (destination.droppableId === source.droppableId &&
+      destination.index === source.index)
+  ) return;
 
   try {
-    await actualizarEstadoTarea(tarea.id, destinoId);
+    let estado = '';
+
+    if (destination.droppableId == 5) estado = 'TO-DO';
+    else if (destination.droppableId == 6) estado = 'IN PROGRESS';
+    else if (destination.droppableId == 7) estado = 'DONE';
+
+    await actualizarEstadoTarea(parseInt(draggableId), {
+      columnaId: parseInt(destination.droppableId),
+      estado: estado,
+    });
+
     await cargarDatos();
   } catch (err) {
-    console.error('Error al alternar estado:', err);
+    alert("Error al mover la tarea.");
+    await cargarDatos();
+  }
+};
+  // --- US-05: ALTERNAR ESTADO (CHECK) ---
+const toggleCompletada = async (tarea: any) => {
+  try {
+    let nuevoEstado = '';
+    let nuevaColumna = tarea.columna_id;
+
+    if (tarea.estado === 'TO-DO') {
+      nuevoEstado = 'IN PROGRESS';
+    } else if (tarea.estado === 'IN PROGRESS') {
+      nuevoEstado = 'DONE';
+    } else if (tarea.estado === 'DONE') {
+      nuevoEstado = 'IN PROGRESS';
+    }
+
+    const columnaDestino = tablero.columna.find((c: any) =>
+      c.nombre.toUpperCase().includes(nuevoEstado)
+    );
+
+    if (!columnaDestino) return;
+
+    nuevaColumna = columnaDestino.id;
+
+    await actualizarEstadoTarea(tarea.id, {
+      columnaId: nuevaColumna,
+      estado: nuevoEstado,
+    });
+
+    await cargarDatos();
+  } catch (err) {
+    console.error('Error:', err);
   }
 };
 
   const handleGuardar = async () => {
-    if (!nuevaTarea.titulo || !nuevaTarea.descripcion || !nuevaTarea.fechaLimite) {
+    if (!nuevaTarea.titulo.trim() || !nuevaTarea.descripcion.trim() || !nuevaTarea.fechaLimite.trim()) {
       alert("Todos los campos son obligatorios.");
       return;
     }
-
     const fechaSeleccionada = new Date(nuevaTarea.fechaLimite + "T12:00:00");
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0); // Solo comparamos días, no horas
@@ -102,7 +123,6 @@ const toggleCompletada = async (tarea: any) => {
       alert("La fecha límite no puede ser un día anterior a hoy.");
       return;
     }
-
     try {
       const fechaLimpia = nuevaTarea.fechaLimite.split('T')[0];
 
