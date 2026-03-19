@@ -33,20 +33,21 @@ function App() {
   // Estado de la tarea
   const [nuevaTarea, setNuevaTarea] = useState(ESTADO_INICIAL_TAREA);
 
-  const cargarDatos = async () => {
-    setLoading(true);
-    try {
-      const data = await getTableroData(2);
-      setTablero(data);
-    } catch (err) {
-      console.error("Error al cargar:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const cargarDatos = async (mostrarCarga = false) => {
+  if (mostrarCarga) setLoading(true);
+
+  try {
+    const data = await getTableroData(2);
+    setTablero(data);
+  } catch (err) {
+    console.error("Error al cargar:", err);
+  } finally {
+    if (mostrarCarga) setLoading(false);
+  }
+};
 
   useEffect(() => {
-    cargarDatos();
+    cargarDatos(true);
   }, []);
 
   // --- LÓGICA DE ARRASTRE ---
