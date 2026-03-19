@@ -40,5 +40,6 @@ model tarea {
   fecha_limite   DateTime? @db.Date
   fecha_creacion DateTime? @default(now()) @db.Timestamp(6)
   columna_id     Int
+  estado         String?   @db.VarChar(50)
   columna        columna   @relation(fields: [columna_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tarea_columna")
 }

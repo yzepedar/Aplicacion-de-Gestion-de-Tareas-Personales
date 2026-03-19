@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsISO8601, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsISO8601, IsNumber, IsOptional, isString } from 'class-validator';
 
 export class CreateTareaDto {
   @IsString()
@@ -21,4 +21,8 @@ export class CreateTareaDto {
 
   @IsNumber()
   columnaId: number;
+
+  @IsOptional()
+@IsString()
+estado?: string;
 }

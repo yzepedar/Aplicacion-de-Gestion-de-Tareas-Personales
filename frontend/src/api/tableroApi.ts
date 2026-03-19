@@ -34,7 +34,7 @@ export const crearTarea = async (tarea: any) => {
 export const actualizarEstadoTarea = async (tareaId: number, nuevaColumnaId: number) => {
   try {
     const response = await fetch(`http://localhost:3000/tarea/${tareaId}`, {
-      method: 'PATCH', // Usamos PATCH para actualizaciones parciales
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
