@@ -12,7 +12,7 @@ export class TareaService {
     return this.prisma.tarea.create({
       data: {
         titulo: createTareaDto.titulo,
-         estado: createTareaDto.estado || 'TO-DO',
+        estado: createTareaDto.estado || 'TO-DO',
         descripcion: createTareaDto.descripcion,
         prioridad: createTareaDto.prioridad || 'Media',
         fecha_limite: createTareaDto.fechaLimite ? new Date(createTareaDto.fechaLimite) : null,

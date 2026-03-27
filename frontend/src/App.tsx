@@ -43,8 +43,11 @@ const tareaSchema = z.object({
 
   prioridad: z.enum(['Baja', 'Media', 'Alta'], {
     message: 'La prioridad seleccionada no es válida'
-  })
+  }),
+
+  estado: z.enum(['TO-DO', 'IN PROGRESS', 'DONE']).default('TO-DO')
 });
+
 
 
 // US01 - creación de tarea
@@ -141,6 +144,8 @@ function App() {
         columnaId: nuevaColumna,
         estado: nuevoEstado,
       });
+      
+      await cargarDatos();
 
       await cargarDatos();
     } catch (err) {
@@ -181,6 +186,7 @@ function App() {
 
       const tareaParaAPI = {
         titulo: tareaValidada.titulo,
+        estado: tareaValidada.estado,
         descripcion: tareaValidada.descripcion,
         prioridad: tareaValidada.prioridad,
         fechaLimite: fechaLimpia,
