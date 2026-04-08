@@ -31,15 +31,19 @@ export const crearTarea = async (tarea: any) => {
   }
 };
 
-export const actualizarEstadoTarea = async (tareaId: number, nuevaColumnaId: number) => {
+export const actualizarEstadoTarea = async (
+  tareaId: number,
+  datos: { columnaId: number; estado: string }
+) => {
   try {
     const response = await fetch(`http://localhost:3000/tarea/${tareaId}`, {
-      method: 'PATCH', // Usamos PATCH para actualizaciones parciales
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        columnaId: nuevaColumnaId,
+        columnaId: datos.columnaId,
+        estado: datos.estado,
       }),
     });
 

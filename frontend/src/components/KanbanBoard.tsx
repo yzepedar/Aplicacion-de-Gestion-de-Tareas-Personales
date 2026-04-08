@@ -18,7 +18,7 @@ export const KanbanBoard = ({ tablero, filtro, busqueda, onDragEnd, onToggle, on
                         const isDone = col.nombre.toUpperCase().includes('DONE');
 
                         return (
-                            <div key={col.id} className="bg-slate-100/40 rounded-[2rem] flex flex-col min-h-[500px] border border-slate-200/50">
+                            <div key={col.id} className="bg-blue-100/40 rounded-[2rem] flex flex-col min-h-[500px] border border-slate-200/50">
                                 <div className="flex justify-between items-center p-5">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-2 h-2 rounded-full ${isDone ? 'bg-green-500' : 'bg-blue-500'}`}></div>

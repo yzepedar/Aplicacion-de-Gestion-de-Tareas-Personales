@@ -12,6 +12,7 @@ export class TareaService {
     return this.prisma.tarea.create({
       data: {
         titulo: createTareaDto.titulo,
+        estado: createTareaDto.estado || 'TO-DO',
         descripcion: createTareaDto.descripcion,
         prioridad: createTareaDto.prioridad || 'Media',
         fecha_limite: createTareaDto.fechaLimite ? new Date(createTareaDto.fechaLimite) : null,
@@ -34,22 +35,27 @@ export class TareaService {
     return tarea;
   }
 
-  // 4. Actualizar (US-03)
-  async update(id: number, updateTareaDto: UpdateTareaDto) {
-    return this.prisma.tarea.update({
-      where: { id: Number(id) },
-      data: {
-        titulo: updateTareaDto.titulo,
-        descripcion: updateTareaDto.descripcion,
-        prioridad: updateTareaDto.prioridad,
-        fecha_limite: updateTareaDto.fechaLimite
-          ? new Date(`${updateTareaDto.fechaLimite}T12:00:00Z`)
-          : undefined,
-        ...(updateTareaDto.columnaId && { columna_id: Number(updateTareaDto.columnaId) }),
-      },
-    });
-  }
 
+  // 4. Actualizar (US-03)
+async update(id: number, updateTareaDto: UpdateTareaDto) {
+  return this.prisma.tarea.update({
+    where: { id: Number(id) },
+    data: {
+      titulo: updateTareaDto.titulo,
+      descripcion: updateTareaDto.descripcion,
+      prioridad: updateTareaDto.prioridad,
+      fecha_limite: updateTareaDto.fechaLimite
+        ? new Date(updateTareaDto.fechaLimite)
+        : undefined,
+      ...(updateTareaDto.columnaId !== undefined && {
+        columna_id: Number(updateTareaDto.columnaId),
+      }),
+      ...(updateTareaDto.estado !== undefined && {
+        estado: updateTareaDto.estado,
+      }),
+    },
+  });
+}
   // 5. Eliminar (US-04)
   async remove(id: number) {
     return this.prisma.tarea.delete({ where: { id } });
